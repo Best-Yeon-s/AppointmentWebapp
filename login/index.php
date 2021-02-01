@@ -11,14 +11,14 @@
     <div class="login-form">
         <img src="logo.png" width="95%">
     <div class = "form">
-        <form class = "register-form" >
-        <input type ="text" placeholder="name"/>
-        <input type ="password" placeholder="password"/>
-        <input type ="text" placeholder="email id"/>
+    <form class = "register-form" action = "register.php">
+        <input type ="text" name = "user_name" id = "user_name" placeholder="name"/>
+        <input type ="password" name = "user_password" id = "user_password" placeholder="password"/>
+        <input type ="text" name = "user_emailId" id = "user_emailId" placeholder="email id"/>
 
         <button>Create</button>
         <p class="message">Already Registered?  <a href = "#">Login</a></p>
-        </form>
+    </form>
 
     <form class="login-page" action = "index.php">
         <input type ="text" name = "name" placeholder="name"/>
