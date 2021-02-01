@@ -8,7 +8,8 @@ function dbconn()
     $db_pw = "mysun1020";
     $conn = mysqli_connect($host_name, $db_user_id, $db_pw , $db_name);
 
-    if($conn->connect_errno){
+    if($conn == false){
+        echo "db 접속 실패";
         die('connect error : '.$conn->connect_errno);
     }
     return $conn;
