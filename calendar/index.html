@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Calendar</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <style type="text/css">
+        .cal_top {
+            text-align: center;
+            font-size: 30px;
+        }
+
+        .cal {
+            text-align: center;
+        }
+
+        table.calendar {
+            border: 1px solid black;
+            display: inline-table;
+            text-align: left;
+        }
+
+        table.calendar td {
+            vertical-align: top;
+            border: 1px solid rgb(95, 131, 145);
+            width: 100px;
+        }
+
+        .schedule {
+    	height : 20px;
+        background-color : #09C;
+        margin: 3px 0px 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cal_top">
+        <a href="#" id="movePrevMonth"><span id="prevMonth" class="cal_tit">&lt;</span></a>
+        <span id="cal_top_year"></span>
+        <span id="cal_top_month"></span>
+        <a href="#" id="moveNextMonth"><span id="nextMonth" class="cal_tit">&gt;</span></a>
+    </div>
+    <div id="cal_tab" class="cal">
+    </div>
+
+    // schedule 추가
+    <input type="text" name="sche_name" id="sche_name" />
+    <input type="text" name="start date" id="start" />
+    <input type="text" name="end date" id="end" />
+    <input type="button" name="create schedule" id="add_btn"
+        onclick="addSchedule(document.getElementById('start').value, document.getElementById('end').value, document.getElementById('sche_name').value)" />
+
+    <script type="text/javascript">
+        var lastlastDay = null;
+        var nextfirstDay = null;
+        var today = null;
+        var year = null;
+        var month = null;
+        var firstDay = null;
+        var lastDay = null;
+        var $tdDay = null;
+        var $tdSche = null;
+
+        $(document).ready(function () {
+            drawCalendar();
+            initDate();
+            drawDays();
+            $("#movePrevMonth").on("click", function () { movePrevMonth(); });
+            $("#moveNextMonth").on("click", function () { moveNextMonth(); });
+        });
+
+        //calendar 그리기
+        function drawCalendar() {
+            var setTableHTML = "";
+            setTableHTML += '<table class="calendar">';
+            setTableHTML += '<tr><th>SUN</th><th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th></tr>';
+            for (var i = 0; i < 6; i++) {
+                setTableHTML += '<tr height="100">';
+                for (var j = 0; j < 7; j++) {
+                    setTableHTML += '<td style="text-overflow:ellipsis;overflow:hidden;white-space:nowrap">';
+                    setTableHTML += '    <div class="cal-day"></div>';
+                    setTableHTML += '    <div class="cal-schedule"></div>';
+                    setTableHTML += '</td>';
+                }
+                setTableHTML += '</tr>';
+            }
+            setTableHTML += '</table>';
+            $("#cal_tab").html(setTableHTML);
+        }
+
+        //날짜 초기화
+        function initDate() {
+            $tdDay = $("td div.cal-day")
+            $tdSche = $("td div.cal-schedule")
+            dayCount = 0;
+            today = new Date();
+            year = today.getFullYear();
+            month = today.getMonth() + 1;
+            firstDay = new Date(year, month - 1, 1);
+            lastDay = new Date(year, month, 0);
+            if (month <= 1) {
+                lastlastDay = new Date(year - 1, 12, 0);
+            }
+            else {
+                lastlastDay = new Date(year, month - 1, 0);
+            }
+        }
+
+        //calendar 날짜표시
+        function drawDays() {
+            $("#cal_top_year").text(year);
+            $("#cal_top_month").text(month);
+
+            if (firstDay.getDay() != 0) {
+                dayCount = lastlastDay.getDate();
+                console.log(lastlastDay.getDay());
+                for (var i = lastlastDay.getDay(); i >= 0; i--) {
+                    $tdDay.eq(i).text(dayCount--);
+                    $tdDay.eq(i).css("opacity", "0.5");
+                }
+                dayCount = 0;
+            }
+            for (var i = firstDay.getDay(); i < firstDay.getDay() + lastDay.getDate(); i++) {
+                $tdDay.eq(i).text(++dayCount);
+            }
+            if (i != 41) {
+                dayCount = 0;
+                for (var i = firstDay.getDay() + lastDay.getDate(); i < 42; i++) {
+                    $tdDay.eq(i).text(++dayCount);
+                    $tdDay.eq(i).css("opacity", "0.5");
+                }
+            }
+            // 휴일 표시
+            for (var i = 0; i < 42; i += 7) {
+                $tdDay.eq(i).css("color", "red");
+            }
+            for (var i = 6; i < 42; i += 7) {
+                $tdDay.eq(i).css("color", "blue");
+            }
+        }
+
+        //calendar 월 이동
+        function movePrevMonth() {
+            month--;
+            if (month <= 0) {
+                month = 12;
+                year--;
+            }
+            if (month < 10) {
+                month = String("0" + month);
+            }
+            getNewInfo();
+        }
+
+        function moveNextMonth() {
+            month++;
+            if (month > 12) {
+                month = 1;
+                year++;
+            }
+            if (month < 10) {
+                month = String("0" + month);
+            }
+            getNewInfo();
+        }
+
+
+        function getNewInfo() {
+            for (var i = 0; i < 42; i++) {
+                $tdDay.eq(i).text("");
+                $tdDay.eq(i).css("opacity", "1.0");
+            }
+            dayCount = 0;
+            firstDay = new Date(year, month - 1, 1);
+            lastDay = new Date(year, month, 0);
+            if (month <= 1) {
+                lastlastDay = new Date(year - 1, 12, 0);
+            }
+            else {
+                lastlastDay = new Date(year, month - 1, 0);
+            }
+            drawDays();
+        }
+
+        function addSchedule(start, end, text) {
+            startDay = start.split('.');
+            console.log(startDay);
+            endDay = end.split('.');
+            console.log(endDay);
+            for(var i = Number(startDay[2]) + firstDay.getDay() - 1; i <= Number(endDay[2]) + firstDay.getDay() - 1; i++) {
+                $tdSche.eq(i).append("<div class='schedule'>");
+                $tdSche.eq(i).append(text);
+                $tdSche.eq(i).append("</div>");
+            }
+        }
+        /*
+        var data = [
+            {
+                text : "Plan A",
+                ownerId : [1],
+                startDate : new Date(2021, 1, 3, 13, 30),
+                endDate : new Date(2021, 1, 3, 13, 30)
+            },
+            {
+                text : "Plan A",
+                ownerId : [1],
+                startDate : new Date(2021, 1, 5, 13, 30),
+                endDate : new Date(2021, 1, 5, 13, 30)
+            }
+        ]
+
+        var schedule_list = new Array(12);
+        class Schedule {
+            constructor(start, end, name) {
+                this.start = start;
+                this.end = end;
+                this.name = name;
+            }
+            getMonth() { return start[1]; }
+            getName() { return this.name; }
+            addSchedule() {
+                
+            }
+        }
+        // schedule 객체
+        function Schedule(){
+            this.list; // 월 별로 스케쥴 객체를 담아놓은 list (class 변수?!)
+            this.start; // [year, month, day, hour, min]으로 이루어진 배열
+            this.end;
+            this.name; // schedule 이름
+            this.getDateMember = getDate;
+            this.getNameMember = getName;
+            this.addScheduleMember = addSchedule;
+            this.push_orderMember = push_order;
+        }
+
+        function getDate() {
+            return this.start[2];
+        }
+
+        function getName() {
+            return this.name;
+        }
+
+        function push_order() {
+            var mon = this.start[0][1] - 1;
+            if(!this.list[mon]) { // 그 달에 약속이 하나 이상 존재하면
+                for(var i = 0; i < this.list[mon].length; i++) {
+                    if(this.list[mon][i][0][2] > this.start[2]) {
+                        for(var j = this.list[mon].length; j > i; j--) {
+                            this.list[mon][j] = this.list[mon][j-1];
+                        }
+                        this.list[mon][i] = this;
+                        break;
+                    }
+                }
+            }
+            else {
+                this.list[mon][0] = this;
+            }
+        }
+
+        function addSchedule(sstart, send) {
+            this.start = sstart.split('.');
+            this.end = send.split('.');
+            list[start[1]-1].push()
+        }
+        */
+    </script>
+</body>
+
+</html>
