@@ -12,30 +12,32 @@
         <img src="logo.png" width="95%">
     <div class = "form">
     <form class = "register-form" action = "user/register.php" method = "POST">
-        <input type ="text" name = "user_name" id = "user_name" placeholder="name"/>
+    <input type ="text" name = "user_emailId" id = "user_emailId" placeholder="email id"/>
+        
         <input type ="password" name = "user_password" id = "user_password" placeholder="password"/>
-        <input type ="text" name = "user_emailId" id = "user_emailId" placeholder="email id"/>
+        <input type ="text" name = "user_name" id = "user_name" placeholder="name"/>
 
         <button>Create</button>
         <p class="message">Already Registered?  <a href = "#">Login</a></p>
     </form>
 
-    <form class="login-page" action = "index.php">
+    <?php if(!isset($_SESSION['user_emailId']) || !isset($_SESSION['user_name'])) { ?>
+    <form class="login-page" action = "index.php" method = "post">
         <input type ="text" name = "user_emailId" id = "user_emailId" placeholder="email id">
         <input type ="password" name = "password" placeholder="password"/>
 
         <dev id = "alert">
         <?php
 
-        if (empty($_GET['user_emailId']) == false && empty($_GET['user_emailId']) == false){
+        if (empty($_POST['user_emailId']) == false && empty($_POST['user_emailId']) == false){
             $conn = mysqli_connect("localhost", "root", "mysun1020", "appointmentapp");
 
             $result = mysqli_query($conn, "
-            select password from user where emailId = '{$_GET['user_emailId']}'
+            select password from user where emailId = '{$_POST['user_emailId']}'
             ");
 
             $name = mysqli_query($conn, "
-            select name from user where emailId = '{$_GET['user_emailId']}'
+            select name from user where emailId = '{$_POST['user_emailId']}'
             ");
 
             if($result){
@@ -43,8 +45,14 @@
                 if($row != NULL){
                     $get_password = $row->password;
 
-                    if($_GET['password'] == $get_password)
-                    {echo "환영합니다 ".$name->fetch_object()->name.'님 :)';}
+                    if($_POST['password'] == $get_password)
+                    {
+                        session_start();
+                        $_SESSION['user_id'] = $_POST['user_emailId'];
+                        $_SESSION['user_name'] = $name;
+                        header("Location: ./main/main.php");
+                        exit;
+                    }
                     else{
                         echo "비밀번호가 일치하지 않습니다";
                     }
@@ -55,7 +63,6 @@
                 echo false;
             }
         }
-
         ?>
         </dev>
 
@@ -65,6 +72,15 @@
         
 
     </form>
+
+    <?php } else {
+            $user_id = $_SESSION['user_id'];
+            $user_name = $_SESSION['user_name'];
+            echo "<p><strong>$user_name</strong>($user_id)님은 이미 로그인하고 있습니다. ";
+            echo "<a href=\"index.php\">[돌아가기]</a> ";
+            echo "<a href=\"logout.php\">[로그아웃]</a></p>";
+        } ?>
+
     </div>
     </div>
 
