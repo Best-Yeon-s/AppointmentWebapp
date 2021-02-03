@@ -12,7 +12,7 @@
 
 <ul>
     <li>
-        <a href = "#">
+        <a href = "main.php">
             <div class = "icon">
                 <i class="fas fa-calendar-alt"aria-hidden = "true"></i>
             </div>
@@ -33,7 +33,7 @@
         </a>
     </li>
     <li>
-        <a href = "setting.php">
+        <a href = "#">
         <div class = "icon">
         <i class="fas fa-bars"aria-hidden = "true"></i>
         </div>
@@ -41,20 +41,27 @@
     </li>    
 </ul>
 
-
-<dev class = "calendar">
+<div class = "message">
+    
 <?php
-// 파일 열기
-$fp = fopen("../../calendar/index.html", "r") or die("파일을 열 수 없습니다！");
+if(!isset($_SESSION['user_id']) ) {
+           
+            echo "로그인 하셔야죠\n<a href=\"../index.php\">[로그인]</a></p>";
+                
+            } else {
+                $conn = mysqli_connect("localhost", "root", "mysun1020", "appointmentapp");
+                $name = mysqli_query($conn, "
+                select name from user where emailId = '{$_SESSION['user_id']}'
+                ");
 
-// 파일 내용 출력
-while( !feof($fp) ) {
-echo fgets($fp);
-}
+                echo "환영합니다 ".$name->fetch_object()->name.'님 :)<br>';
 
-// 파일 닫기
-fclose($fp);
+                echo "<a href=\"../user/logout.php\">   [로그아웃]</a></p>";
+
+            }
 ?>
-</dev>
+</div>
+
+
 </body>
 </html>
