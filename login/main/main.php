@@ -19,7 +19,7 @@
         </a>
     </li>
     <li>
-        <a href = "#">
+        <a href = "friendlist.php">
         <div class = "icon">
         <i class="fas fa-user-friends" aria-hidden = "true"></i>
         </div>

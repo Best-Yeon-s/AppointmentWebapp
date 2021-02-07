@@ -37,21 +37,24 @@
             $conn = mysqli_connect("localhost", "root", "mysun1020", "appointmentapp");
 
             $result = mysqli_query($conn, "
-            select password from user where emailId = '{$_POST['user_emailId']}'
+            select * from user where emailId = '{$_POST['user_emailId']}'
             ");
+            
             $name = mysqli_query($conn, "
             select name from user where emailId = '{$_POST['user_emailId']}'
             ");
+
             if($result){
-                $row = $result->fetch_object();
+                $row = mysqli_fetch_assoc($result);
                 if($row != NULL){
-                    $get_password = $row->password;
+                    $get_password = $row["password"];
 
                     if($_POST['password'] == $get_password)
                     {
                         session_start();
-                        $_SESSION['user_id'] = $_POST['user_emailId'];
-                        $_SESSION['user_name'] = $name;
+                        $_SESSION['user_email'] = $_POST['user_emailId'];
+                        $_SESSION['user_name'] = $row["name"];
+                        $_SESSION['user_id'] = $row["id"];
                         header("Location: ./main/main.php");
                         exit;
                     }

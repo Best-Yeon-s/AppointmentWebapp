@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<?php session_start(); ?>
+<?php session_start(); 
+?>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -19,7 +20,7 @@
         </a>
     </li>
     <li>
-        <a href = "#">
+        <a href = "friendlist.php">
         <div class = "icon">
         <i class="fas fa-user-friends" aria-hidden = "true"></i>
         </div>
@@ -49,13 +50,7 @@ if(!isset($_SESSION['user_id']) ) {
             echo "로그인 하셔야죠\n<a href=\"../index.php\">[로그인]</a></p>";
                 
             } else {
-                $conn = mysqli_connect("localhost", "root", "mysun1020", "appointmentapp");
-                $name = mysqli_query($conn, "
-                select name from user where emailId = '{$_SESSION['user_id']}'
-                ");
-
-                echo "환영합니다 ".$name->fetch_object()->name.'님 :)<br>';
-
+                echo "환영합니다 ".$_SESSION['user_name'].'님 :)<br>';
                 echo "<a href=\"../user/logout.php\">   [로그아웃]</a></p>";
 
             }
