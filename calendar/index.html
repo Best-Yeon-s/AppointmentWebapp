@@ -30,7 +30,35 @@
         .schedule {
     	height : 20px;
         background-color : #09C;
-        margin: 3px 0px 3px;
+        display: block;
+        margin: 5px 10%;
+        border-radius: 2px;
+        }
+
+        .multiday-schedule {
+    	height : 20px;
+        background-color : #09C;
+        display: block;
+        margin: 5px -2px;
+        border-radius: 0px;
+        }
+
+        .multiday-schedule-start {
+    	height : 20px;
+        background-color : #09C;
+        display: block;
+        margin: 5px 10%;
+        margin-right: -4px;
+        border-radius: 2px;
+        }
+
+        .multiday-schedule-end {
+    	height : 20px;
+        background-color : #09C;
+        display: block;
+        margin: 5px 10%;
+        margin-left: -4px;
+        border-radius: 2px;
         }
     </style>
 </head>
@@ -45,13 +73,12 @@
     <div id="cal_tab" class="cal">
     </div>
 
-    // schedule 추가
+    <!-- schedule 추가 -->
     <input type="text" name="sche_name" id="sche_name" />
     <input type="text" name="start date" id="start" />
     <input type="text" name="end date" id="end" />
     <input type="button" name="create schedule" id="add_btn"
-        onclick="addSchedule(document.getElementById('start').value, document.getElementById('end').value, document.getElementById('sche_name').value)" />
-
+        onclick="addData(document.getElementById('sche_name').value, document.getElementById('start').value, document.getElementById('end').value)" />
     <script type="text/javascript">
         var lastlastDay = null;
         var nextfirstDay = null;
@@ -110,12 +137,17 @@
 
         //calendar 날짜표시
         function drawDays() {
+            // schedule 표시 삭제 (달력 초기화)
+            $("div.schedule").remove();
+            $("div.multiday-schedule").remove();
+            $("div.multiday-schedule-start").remove();
+            $("div.multiday-schedule-end").remove();
+            
             $("#cal_top_year").text(year);
             $("#cal_top_month").text(month);
 
             if (firstDay.getDay() != 0) {
                 dayCount = lastlastDay.getDate();
-                console.log(lastlastDay.getDay());
                 for (var i = lastlastDay.getDay(); i >= 0; i--) {
                     $tdDay.eq(i).text(dayCount--);
                     $tdDay.eq(i).css("opacity", "0.5");
@@ -139,6 +171,7 @@
             for (var i = 6; i < 42; i += 7) {
                 $tdDay.eq(i).css("color", "blue");
             }
+            readData();
         }
 
         //calendar 월 이동
@@ -184,90 +217,102 @@
             drawDays();
         }
 
+        var data = [
+            {
+                text : "plan A",
+                startDate : new Date(2021, 1, 3, 13, 30),
+                endDate : new Date(2021, 1, 3, 13, 30)
+            },
+            {
+                text : "plan B",
+                startDate : new Date(2021, 1, 7, 10, 30),
+                endDate : new Date(2021, 1, 10, 15, 30)
+            }
+        ]
+        
+        // schedule에 대한 정보를 data 리스트에 알맞은 형식으로 추가함
+        function addData(_text, _start, _end) {
+            start_info = _start.split('.');
+            end_info = _end.split('.');
+            data.push({
+                text : _text,
+                startDate : new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4])),
+                endDate : new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4]))
+            });
+            // 추가한 schedul이 현재 보고있는 달에 해당된다면
+            if(data[data.length-1].startDate.getMonth() + 1 == month) {
+                displayEvent(data[data.length-1]);
+            }
+        }
+
+        // data를 차례로 읽어와 현재 보고있는 달(month)에 해당되는 schedule이 있으면 화면에 표시하는 함수
+        function readData() {
+            var readDate = new Date(year, month, 1);
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].startDate.getFullYear() == year && data[i].startDate.getMonth() + 1 == month) {
+                    displayEvent(data[i]);
+                }
+            }
+        }
+
+        // schedule에 대한 정보를 받아 와 화면에 표시함
+        function displayEvent(event) {
+            var temp = "";
+            var startidx = Number(event.startDate.getDate() + firstDay.getDay() - 1);
+            // single-day schedule
+            if (event.startDate.getMonth() == event.endDate.getMonth() && event.startDate.getDate() == event.endDate.getDate()) {
+                temp = "<div class='schedule'>" + event.text + "</div>";
+                $tdSche.eq(startidx).append(temp);
+            }
+            // multi-day schedule
+            else {
+                temp = "<div class='multiday-schedule-start'>" + event.text + "</div>";
+                // schedule 시작 날일 때
+                $tdSche.eq(startidx).append(temp);
+                startidx++;
+                var countMonth = event.startDate.getMonth(); 
+                var countDate = event.startDate.getDate();
+                while (startidx < 42) {
+                    // 다음날을 읽어오는 작업!
+                    if (countDate == lastDay.getDate()) {
+                        countDate == 1;
+                        if (month == 12) {
+                            countMonth == 0;
+                        }
+                        else {
+                            countMonth++;
+                        }
+                    }
+                    else {
+                        countDate++;
+                    }
+
+                    // schedule 끝나는 날일 때
+                    if (countDate == event.endDate.getDate() && countMonth == event.endDate.getMonth()) {
+                        $tdSche.eq(startidx).append("<div class='multiday-schedule-end'></div>")
+                        break;
+                    }
+                    // schedule 진행 중인 날일 때
+                    else {
+                        $tdSche.eq(startidx).append("<div class='multiday-schedule'></div>");
+                    }
+                    startidx++;
+                }
+            }
+        }
+
         function addSchedule(start, end, text) {
             startDay = start.split('.');
             console.log(startDay);
             endDay = end.split('.');
             console.log(endDay);
+            var temp = "";
             for(var i = Number(startDay[2]) + firstDay.getDay() - 1; i <= Number(endDay[2]) + firstDay.getDay() - 1; i++) {
-                $tdSche.eq(i).append("<div class='schedule'>");
-                $tdSche.eq(i).append(text);
-                $tdSche.eq(i).append("</div>");
-            }
-        }
-        /*
-        var data = [
-            {
-                text : "Plan A",
-                ownerId : [1],
-                startDate : new Date(2021, 1, 3, 13, 30),
-                endDate : new Date(2021, 1, 3, 13, 30)
-            },
-            {
-                text : "Plan A",
-                ownerId : [1],
-                startDate : new Date(2021, 1, 5, 13, 30),
-                endDate : new Date(2021, 1, 5, 13, 30)
-            }
-        ]
-
-        var schedule_list = new Array(12);
-        class Schedule {
-            constructor(start, end, name) {
-                this.start = start;
-                this.end = end;
-                this.name = name;
-            }
-            getMonth() { return start[1]; }
-            getName() { return this.name; }
-            addSchedule() {
-                
-            }
-        }
-        // schedule 객체
-        function Schedule(){
-            this.list; // 월 별로 스케쥴 객체를 담아놓은 list (class 변수?!)
-            this.start; // [year, month, day, hour, min]으로 이루어진 배열
-            this.end;
-            this.name; // schedule 이름
-            this.getDateMember = getDate;
-            this.getNameMember = getName;
-            this.addScheduleMember = addSchedule;
-            this.push_orderMember = push_order;
-        }
-
-        function getDate() {
-            return this.start[2];
-        }
-
-        function getName() {
-            return this.name;
-        }
-
-        function push_order() {
-            var mon = this.start[0][1] - 1;
-            if(!this.list[mon]) { // 그 달에 약속이 하나 이상 존재하면
-                for(var i = 0; i < this.list[mon].length; i++) {
-                    if(this.list[mon][i][0][2] > this.start[2]) {
-                        for(var j = this.list[mon].length; j > i; j--) {
-                            this.list[mon][j] = this.list[mon][j-1];
-                        }
-                        this.list[mon][i] = this;
-                        break;
-                    }
-                }
-            }
-            else {
-                this.list[mon][0] = this;
+                temp = "<div class='schedule'>" + text + "</div>";
+                $tdSche.eq(i).append(temp);
             }
         }
 
-        function addSchedule(sstart, send) {
-            this.start = sstart.split('.');
-            this.end = send.split('.');
-            list[start[1]-1].push()
-        }
-        */
     </script>
 </body>
 
