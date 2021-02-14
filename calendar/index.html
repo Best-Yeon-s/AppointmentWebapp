@@ -9,56 +9,173 @@
         .cal_top {
             text-align: center;
             font-size: 30px;
+            margin: 10px 0px;
         }
 
         .cal {
             text-align: center;
+            padding-top: 20px;
         }
 
         table.calendar {
             border: 1px solid black;
             display: inline-table;
-            text-align: left;
+            text-align: center;
+            border-spacing: 0px;
+            border-radius: 10px;
+            table-layout: fixed;
         }
 
         table.calendar td {
             vertical-align: top;
-            border: 1px solid rgb(95, 131, 145);
+            border-top: 1px solid rgba(128, 128, 128, 0.24);
             width: 100px;
         }
 
+        table.calendar td:hover {
+            background-color: rgba(128, 128, 128, 0.24);
+        }
+
         .schedule {
-    	height : 20px;
-        background-color : #09C;
-        display: block;
-        margin: 5px 10%;
-        border-radius: 2px;
+            height: 20px;
+            background-color: rgba(231, 161, 200, 0.829);
+            display: block;
+            margin: 5px 10%;
+            border-radius: 2px;
+            text-align: left;
+            font-size: 14px;
+            overflow: hidden;
         }
 
         .multiday-schedule {
-    	height : 20px;
-        background-color : #09C;
-        display: block;
-        margin: 5px -2px;
-        border-radius: 0px;
+            height: 20px;
+            background-color: rgba(231, 161, 200, 0.829);
+            display: block;
+            margin: 5px -2px;
+            border-radius: 0px;
         }
 
         .multiday-schedule-start {
-    	height : 20px;
-        background-color : #09C;
-        display: block;
-        margin: 5px 10%;
-        margin-right: -4px;
-        border-radius: 2px;
+            height: 20px;
+            background-color: rgba(231, 161, 200, 0.829);
+            display: block;
+            margin: 5px 10%;
+            margin-right: -4px;
+            border-radius: 2px;
+            text-align: left;
+            font-size: 14px;
         }
 
         .multiday-schedule-end {
-    	height : 20px;
-        background-color : #09C;
-        display: block;
-        margin: 5px 10%;
-        margin-left: -4px;
-        border-radius: 2px;
+            height: 20px;
+            background-color: rgba(231, 161, 200, 0.829);
+            display: block;
+            margin: 5px 10%;
+            margin-left: -4px;
+            border-radius: 2px;
+        }
+
+        .schedule-ghost {
+            background-color: transparent;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            transition: opacity 500ms;
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .overlay:target {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .popup {
+            margin: 70px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            width: 30%;
+            position: relative;
+            transition: all 5s ease-in-out;
+        }
+
+        .popup h2 {
+            margin-top: 0;
+            color: #333;
+            font-family: Tahoma, Arial, sans-serif;
+        }
+
+        .popup .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            transition: all 200ms;
+            font-size: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .popup .close:hover {
+            color: rgb(231, 161, 200);
+        }
+
+        .popup .content {
+            max-height: 30%;
+            overflow: auto;
+        }
+
+        @media screen and (max-width: 700px) {
+            .box {
+                width: 70%;
+            }
+
+            .popup {
+                width: 70%;
+            }
+        }
+
+        .sche_label {
+            text-align: start;
+        }
+        .sche_data {
+            display: block;
+            margin: 10px;
+            border: none;
+            height: 20px;
+            background-color: rgb(232, 240, 254);
+            border-radius: 10px;
+        }
+
+        .sche_data:focus {
+            outline: none;
+        }
+
+        #add_btn {
+            width: 250px;
+            height: 30px;
+            background-color: lightskyblue;
+            align-items: center;
+            border: none;
+            margin: 10px 10px 0px 10px;
+            border-radius: 50px;
+            text-align: center;
+        }
+
+        #add_btn:hover {
+            border: none;
+            background-color: rgb(91, 123, 143);
+        }
+
+        #add_btn:focus {
+            outline: none;
         }
     </style>
 </head>
@@ -73,12 +190,27 @@
     <div id="cal_tab" class="cal">
     </div>
 
-    <!-- schedule 추가 -->
-    <input type="text" name="sche_name" id="sche_name" />
-    <input type="text" name="start date" id="start" />
-    <input type="text" name="end date" id="end" />
-    <input type="button" name="create schedule" id="add_btn"
-        onclick="addData(document.getElementById('sche_name').value, document.getElementById('start').value, document.getElementById('end').value)" />
+    <!-- schedule 추가하는 팝업창 -->
+    <div id="popup1" class="overlay">
+        <div class="popup">
+            <h2>Add schedule</h2>
+            <a class="close" href="#">&times;</a>
+            <div class="content">
+                <label class="sche_label">schedule name :</label>
+                <input type="text" class="sche_data" id="sche_name">
+                <label class="sche_label">start date & time: </label>
+                <input type="text" class="sche_data" id="start">
+                <select>
+                    <option></option>
+                </select>
+                <label class="sche_label">end date & time: </label>
+                <input type="text" class="sche_data" id="end">
+                <input type="button" id="add_btn" value="add schedule"
+                    onclick="addData(document.getElementById('sche_name').value, document.getElementById('start').value, document.getElementById('end').value)">
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript">
         var lastlastDay = null;
         var nextfirstDay = null;
@@ -101,12 +233,12 @@
         //calendar 그리기
         function drawCalendar() {
             var setTableHTML = "";
-            setTableHTML += '<table class="calendar">';
-            setTableHTML += '<tr><th>SUN</th><th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th></tr>';
+            setTableHTML += '<table class="calendar" width="800">';
+            setTableHTML += '<tr height="30"><th>SUN</th><th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th></tr>';
             for (var i = 0; i < 6; i++) {
                 setTableHTML += '<tr height="100">';
                 for (var j = 0; j < 7; j++) {
-                    setTableHTML += '<td style="text-overflow:ellipsis;overflow:hidden;white-space:nowrap">';
+                    setTableHTML += '<td onClick="location.href=\'#popup1\'"style="text-overflow:ellipsis;overflow:hidden;white-space:nowrap">';
                     setTableHTML += '    <div class="cal-day"></div>';
                     setTableHTML += '    <div class="cal-schedule"></div>';
                     setTableHTML += '</td>';
@@ -142,7 +274,7 @@
             $("div.multiday-schedule").remove();
             $("div.multiday-schedule-start").remove();
             $("div.multiday-schedule-end").remove();
-            
+
             $("#cal_top_year").text(year);
             $("#cal_top_month").text(month);
 
@@ -217,31 +349,32 @@
             drawDays();
         }
 
+        // schedule을 저장
         var data = [
             {
-                text : "plan A",
-                startDate : new Date(2021, 1, 3, 13, 30),
-                endDate : new Date(2021, 1, 3, 13, 30)
+                text: "hahaplan Asdfghjsgddd",
+                startDate: new Date(2021, 1, 3, 13, 30),
+                endDate: new Date(2021, 1, 3, 13, 30)
             },
             {
-                text : "plan B",
-                startDate : new Date(2021, 1, 7, 10, 30),
-                endDate : new Date(2021, 1, 10, 15, 30)
+                text: "  plan B",
+                startDate: new Date(2021, 1, 7, 10, 30),
+                endDate: new Date(2021, 1, 10, 15, 30)
             }
         ]
-        
+
         // schedule에 대한 정보를 data 리스트에 알맞은 형식으로 추가함
         function addData(_text, _start, _end) {
             start_info = _start.split('.');
             end_info = _end.split('.');
             data.push({
-                text : _text,
-                startDate : new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4])),
-                endDate : new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4]))
+                text: "\0" + _text,
+                startDate: new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4])),
+                endDate: new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4]))
             });
             // 추가한 schedul이 현재 보고있는 달에 해당된다면
-            if(data[data.length-1].startDate.getMonth() + 1 == month) {
-                displayEvent(data[data.length-1]);
+            if (data[data.length - 1].startDate.getMonth() + 1 == month) {
+                displayEvent(data[data.length - 1]);
             }
         }
 
@@ -270,7 +403,7 @@
                 // schedule 시작 날일 때
                 $tdSche.eq(startidx).append(temp);
                 startidx++;
-                var countMonth = event.startDate.getMonth(); 
+                var countMonth = event.startDate.getMonth();
                 var countDate = event.startDate.getDate();
                 while (startidx < 42) {
                     // 다음날을 읽어오는 작업!
@@ -301,16 +434,9 @@
             }
         }
 
-        function addSchedule(start, end, text) {
-            startDay = start.split('.');
-            console.log(startDay);
-            endDay = end.split('.');
-            console.log(endDay);
-            var temp = "";
-            for(var i = Number(startDay[2]) + firstDay.getDay() - 1; i <= Number(endDay[2]) + firstDay.getDay() - 1; i++) {
-                temp = "<div class='schedule'>" + text + "</div>";
-                $tdSche.eq(i).append(temp);
-            }
+
+        function Showpopup() {
+
         }
 
     </script>
