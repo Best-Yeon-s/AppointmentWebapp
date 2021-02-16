@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<?php session_start(); ?>
+<?php session_start();
+ ?>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -41,13 +42,6 @@
     </li>    
 </ul>
 
-'<a href="friendrequest.php?type=request&user1_id=2&user2_id=3">친구신청</a>';
-
-<form class = "searchform" action = "finduser.php" method = "POST">
-    <input type ="text" name = "nameTofind" id = "nameTofind"/>
-    <button>Search</button>
-</form>
-
 <form class = "searchform" action = "finduser.php" method = "POST">
     <input type ="text" name = "nameTofind" id = "nameTofind"/>
     <button>Search</button>
@@ -56,7 +50,7 @@
 <div class = "result">
 <?php
 if (empty($_POST['nameTofind']) == false ){
-            $conn = mysqli_connect("localhost", "root", "mysun1020", "appointmentapp");
+            $conn = mysqli_connect("127.0.0.1", "root", "mysun1020", "appointmentapp");
             $name = $_POST['nameTofind'];
             $sql = "select * from user where name = '{$_POST['nameTofind']}'";
             $result = mysqli_query($conn, $sql);

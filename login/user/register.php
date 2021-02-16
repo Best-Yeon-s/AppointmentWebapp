@@ -1,7 +1,5 @@
 <?php
-
-$conn = mysqli_connect("localhost", "root", "mysun1020", "appointmentapp");
-
+$conn = mysqli_connect("127.0.0.1", "root", "mysun1020", "appointmentapp");
 $mysql = mysqli_query($conn, "
    insert into user(emailId, password, name) 
    value('{$_POST['user_emailId']}','{$_POST['user_password']}','{$_POST['user_name']}' )

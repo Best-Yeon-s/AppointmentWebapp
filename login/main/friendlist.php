@@ -43,7 +43,6 @@
 
 <div class = "result">
 <?php
-    $conn = mysqli_connect("localhost", "root", "mysun1020", "appointmentapp");
 
     echo "<h1> 친구 요청 </h1>";
 
@@ -52,7 +51,12 @@
     where (status = 0) and (action_user_id !={$_SESSION['user_id']})  
     and (relationship.one_id = {$_SESSION['user_id']} OR relationship.two_id = {$_SESSION['user_id']});";
 
+
+    $conn = mysqli_connect("127.0.0.1", "root", "mysun1020", "appointmentapp");
+
+
     $request_received = mysqli_query($conn, $sql);
+
 
     if(mysqli_num_rows($request_received) > 0){
         while($row = mysqli_fetch_assoc($request_received)) {

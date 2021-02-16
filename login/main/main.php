@@ -54,6 +54,13 @@ echo fgets($fp);
 
 // 파일 닫기
 fclose($fp);
+
+
+
+
+
+
+
 ?>
 </dev>
 </body>

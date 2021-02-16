@@ -2,7 +2,7 @@
 
 function dbconn()
 {
-    $host_name = "localhost";
+    $host_name = "127.0.0.1";
     $db_user_id = "root";
     $db_name = "appointmentapp";
     $db_pw = "mysun1020";

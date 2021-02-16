@@ -7,7 +7,7 @@ $type = $_GET["type"];
 
 $id_1 = (int)$_GET["user1_id"]; // 콘텐츠 아이디
 $id_2 = (int)$_GET["user2_id"];
-$conn = mysqli_connect("localhost", "root", "mysun1020", "appointmentapp");
+$conn = mysqli_connect("127.0.0.1", "root", "mysun1020", "appointmentapp");
 
 if($type == "request")
 {
