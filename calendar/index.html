@@ -354,7 +354,6 @@
             getNewInfo();
         }
 
-
         function getNewInfo() {
             for (var i = 0; i < 42; i++) {
                 $tdDay.eq(i).text("");
@@ -395,16 +394,37 @@
             data.push({
                 text: "\0" + _text,
                 startDate: new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4])),
-                endDate: new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4]))
+                endDate: new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4])),
+                order: setOrder(_text, new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4])),
+                new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4])))
             });
             // 추가한 schedul이 현재 보고있는 달에 해당된다면
             if (data[data.length - 1].startDate.getMonth() + 1 == month) {
-                displayEvent(data[data.length - 1]);
+                displayEvent(data[data.length - 1], data.length - 1);
             }
         }
 
-        function setOrder() {
-            
+        // schedule의 순서를 정해주는 함수
+        function setOrder(_text, _startDate, _endDate) {
+            var _order = 1;
+            var compare_s;
+            var compare_e;
+            for(var i = 0; i < data.length; i++) {
+                // 자신이 아닌지 확인
+                if(!(data[i].text==_text && data[i].startDate==_startDate && data[i].endDate==_endDate)) {
+                    console.log("Not me!");
+                    compare_s = new Date(data[i].startDate.getFullYear(), data[i].startDate.getMonth(), data[i].startDate.getDate());
+                    compare_e = new Date(data[i].endDate.getFullYear(), data[i].endDate.getMonth(), data[i].endDate.getDate(), 24, 59);
+                    console.log(compare_s);
+                    console.log(compare_e);
+                    if(compare_s <= _startDate && _startDate <= compare_e) {
+                        if(data[i].order >= _order) {
+                            _order = data[i].order + 1;
+                        }
+                    }
+                }
+            }
+            return _order;
         }
 
         // data를 차례로 읽어와 현재 보고있는 달(month)에 해당되는 schedule이 있으면 화면에 표시하는 함수
@@ -412,24 +432,36 @@
             var readDate = new Date(year, month, 1);
             for (var i = 0; i < data.length; i++) {
                 if (data[i].startDate.getFullYear() == year && data[i].startDate.getMonth() + 1 == month) {
-                    displayEvent(data[i]);
+                    displayEvent(data[i], i);
                 }
             }
         }
 
+        // 높이를 맞추어주기 위해 ghost schedule 추가하는 함수
+        function addGhostSchedule(_parenttag, _order) {
+            var temp = _parenttag.find('div').length;
+            console.log("temp is :" + temp);
+            for(var i = temp; i < _order - 1; i++) {
+                _parenttag.append("<div class='schedule schedule-ghost'</div>");
+                console.log("add ghost schedule");
+            }
+        }
+
         // schedule에 대한 정보를 받아 와 화면에 표시함
-        function displayEvent(event) {
+        function displayEvent(event, _i) {
             var temp = "";
             var startidx = Number(event.startDate.getDate() + firstDay.getDay() - 1);
             // single-day schedule
             if (event.startDate.getMonth() == event.endDate.getMonth() && event.startDate.getDate() == event.endDate.getDate()) {
-                temp = "<div class='schedule'>" + event.text + "</div>";
+                temp = "<div class='schedule' id=i"+ String(_i) + ">" + event.text + "</div>";
                 $tdSche.eq(startidx).append(temp);
             }
             // multi-day schedule
             else {
-                temp = "<div class='multiday-schedule-start'>" + event.text + "</div>";
+                temp = "<div class='schedule multiday-schedule-start' id=i" + String(_i) + ">" + event.text + "</div>";
+                console.log(temp);
                 // schedule 시작 날일 때
+                addGhostSchedule($tdSche.eq(startidx), data[_i].order);
                 $tdSche.eq(startidx).append(temp);
                 startidx++;
                 var countMonth = event.startDate.getMonth();
@@ -451,12 +483,14 @@
 
                     // schedule 끝나는 날일 때
                     if (countDate == event.endDate.getDate() && countMonth == event.endDate.getMonth()) {
-                        $tdSche.eq(startidx).append("<div class='multiday-schedule-end'></div>")
+                        addGhostSchedule($tdSche.eq(startidx), data[_i].order);
+                        $tdSche.eq(startidx).append("<div class='schedule multiday-schedule-end' id=i" + String(_i) + "></div>")
                         break;
                     }
                     // schedule 진행 중인 날일 때
                     else {
-                        $tdSche.eq(startidx).append("<div class='multiday-schedule'></div>");
+                        addGhostSchedule($tdSche.eq(startidx), data[_i].order);
+                        $tdSche.eq(startidx).append("<div class='schedule multiday-schedule' id=i" + String(_i) + "></div>");
                     }
                     startidx++;
                 }
