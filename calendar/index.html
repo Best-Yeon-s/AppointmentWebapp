@@ -184,8 +184,8 @@
             outline: none;
         }
 
-        #add_btn {
-            width: 250px;
+        .btn {
+            width: 90%;
             height: 30px;
             background-color: #9796f0ba;
             align-items: center;
@@ -195,18 +195,18 @@
             text-align: center;
         }
 
-        #add_btn:hover {
+        .btn:hover {
             border: none;
             background-color: #6c6b8fba;
             color: rgba(255, 255, 255, 0.719);
         }
 
-        #add_btn:focus {
+        .btn:focus {
             outline: none;
         }
 
         .info_block {
-            width: 250px;
+            width: 90%;
             height: 50px;
             margin: 10px;
             border: 1px rgba(0, 0, 0, 0.7);
@@ -284,13 +284,23 @@
     </div>
 
     <!-- schedule의 정보를 수정하는 edit 창 -->
-    <div id="daily_schelist" class="overlay">
+    <div id="edit_schedule" class="overlay">
         <div class="popup">
-            <h2>Daily Schedule
-                <div id="selected_date"></div>
-            </h2>
-            <a class="close" href="#">&times;</a>
-            <div class="content"></div>
+            <h2> Edit Schedule</h2>
+            <div class="temp"></div>
+            <a class="close" href="#daily_schelist">&times;</a>
+            <div class="content">
+                <label class="sche_label">schedule name :</label>
+                <input type="text" class="sche_data" id="sche_name">
+                <label class="sche_label">start date & time :</label>
+                <input type="date" class="sche_data" id="startdate">
+                <input type="time" class="sche_data" id="starttime">
+                <label class="sche_label">end date & time :</label>
+                <input type="date" class="sche_data" id="enddate">
+                <input type="time" class="sche_data" id="endtime">
+                <input type="button" class="btn" id="edit_btn" value="edit schedule"
+                    onclick="editData(document.getElementById('sche_name').value, document.getElementById('startdate').value, document.getElementById('starttime').value, document.getElementById('enddate').value, document.getElementById('endtime').value)">
+            </div>
         </div>
     </div>
 
@@ -298,17 +308,17 @@
     <div id="popup1" class="overlay">
         <div class="popup">
             <h2>Add schedule</h2>
-            <a class="close" href="#daily_schelist">&times;</a>
+            <a class="close" href="#">&times;</a>
             <div class="content">
                 <label class="sche_label">schedule name :</label>
                 <input type="text" class="sche_data" id="sche_name">
                 <label class="sche_label">start date & time : </label>
                 <input type="date" class="sche_data" id="startdate">
-                <input type="time" class="sche_data" id="starttime">
-                <label class="sche_label">end date & time: </label>
+                <input type="time" class="sche_data" id="starttime" value="00:00">
+                <label class="sche_label">end date & time :</label>
                 <input type="date" class="sche_data" id="enddate">
-                <input type="time" class="sche_data" id="endtime">
-                <input type="button" id="add_btn" value="add schedule"
+                <input type="time" class="sche_data" id="endtime" value="00:00">
+                <input type="button" class="btn" id="add_btn" value="add schedule"
                     onclick="addData(document.getElementById('sche_name').value, document.getElementById('startdate').value, document.getElementById('starttime').value, document.getElementById('enddate').value, document.getElementById('endtime').value)">
             </div>
         </div>
@@ -384,7 +394,6 @@
             location.href = "#daily_schelist";
         }
 
-        /////////////////////////////////////////////////////////////////////////////
         // daily schedule의 information block을 화면에 나타내는 함수
         function makeInfoBlock(_index) {
             var dateinfo = "";
@@ -396,10 +405,58 @@
                 dateinfo = String(data[_index].startDate.getMonth() + 1) + "/" + String(data[_index].startDate.getDate()) + " ~ " +
                     String(data[_index].endDate.getMonth() + 1) + "/" + String(data[_index].endDate.getDate());
             }
-            var temp = "<div class='info_block'><div class='color_block'></div>" +
+            var temp = "<div class='info_block' onClick='showEditSchedule(event)' id=info"+ _index +"><div class='color_block'></div>" +
                 "<div class='text_block'>" + data[_index].text + "</div>" +
                 "<div class='text_block date_info'>" + dateinfo + "</div></div>";
             $("#daily_schelist .popup .content").append(temp);
+        }
+
+        // Data를 수정함
+        function editData(_text, _startdate, _starttime, _enddate, _endtime) {
+            var _id = $("#edit_schedule .popup .temp").attr('id').slice(1);
+
+            // 화면에 표시된 schedule을 지움
+            for(var i = data[_id].startDate.getDate(); i <= data[_id].endDate.getDate(); i ++) {
+                $("#i"+_id).remove();
+            }
+
+            start_info = _startdate.split('-').concat(_starttime.split(':'));
+            end_info = _enddate.split('-').concat(_endtime.split(':'));
+
+            data[_id].text = _text;
+            data[_id].startDate = new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4]));
+            data[_id].endDate = new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4]));
+            data[_id].order = setOrder(_text, new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4])),
+                    new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4])));
+            
+            // 다시 화면에 schedule을 표시함
+            if (data[data.length - 1].startDate.getMonth() + 1 == month) {
+                displayEvent(data[data.length - 1], data.length - 1); // 다시 보여줌
+            }
+            location.href = "#";
+        }
+
+        function pluszero(num) {
+            if(num.length == 1) {
+                return '0' + num;
+            }
+            return num;
+        }
+
+        function showEditSchedule(event) {
+            var children = $("#edit_schedule .popup .content").children("input");
+            _id = event.target.id.slice(4);
+            $("#edit_schedule .popup .temp").attr("id", "e" + _id);
+            console.log(_id);
+            console.log(children.length);
+
+            children[0].value = data[_id].text;
+            children[1].value = data[_id].startDate.getFullYear() + "-" + pluszero(String(data[_id].startDate.getMonth() + 1)) + "-" + pluszero(String(data[_id].startDate.getDate()));
+            children[2].value = data[_id].startDate.getHours() + ":" + data[_id].startDate.getMinutes();
+            children[3].value = data[_id].endDate.getFullYear() + "-" + pluszero(String(data[_id].endDate.getMonth() + 1)) + "-" + pluszero(String(data[_id].endDate.getDate()));
+            children[4].value = data[_id].endDate.getHours() + ":" + data[_id].endDate.getMinutes();
+            location.href = "#edit_schedule";
+
         }
 
         function resetDailySchelist() {
@@ -531,7 +588,7 @@
             start_info = _startdate.split('-').concat(_starttime.split(':'));
             end_info = _enddate.split('-').concat(_endtime.split(':'));
             data.push({
-                text: "\0" + _text,
+                text: _text,
                 startDate: new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4])),
                 endDate: new Date(Number(end_info[0]), Number(end_info[1]) - 1, Number(end_info[2]), Number(end_info[3]), Number(end_info[4])),
                 order: setOrder(_text, new Date(Number(start_info[0]), Number(start_info[1]) - 1, Number(start_info[2]), Number(start_info[3]), Number(start_info[4])),
@@ -550,7 +607,7 @@
             var compare_e;
             for (var i = 0; i < data.length; i++) {
                 // 자신이 아닌지 확인
-                if (!(data[i].text == _text && data[i].startDate == _startDate && data[i].endDate == _endDate)) {
+                if (!(data[i].text == _text && data[i].startDate.valueOf() === _startDate.valueOf() && data[i].endDate.valueOf() === _endDate.valueOf())) {
                     compare_s = new Date(data[i].startDate.getFullYear(), data[i].startDate.getMonth(), data[i].startDate.getDate());
                     compare_e = new Date(data[i].endDate.getFullYear(), data[i].endDate.getMonth(), data[i].endDate.getDate(), 24, 59);
                     if (compare_s <= _startDate && _startDate <= compare_e) {
